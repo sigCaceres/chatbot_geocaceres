@@ -1,0 +1,203 @@
+:root {
+    --caceres-red: #9A1032;
+    --caceres-gold: #D4AF37;
+    --caceres-white: #F9F9F9;
+    --caceres-dark: #2D2D2D;
+    --bg-app: #EAEAEA;
+    --text-color: #333333;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    background-color: var(--bg-app);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    color: var(--text-color);
+}
+
+h1 {
+    color: var(--caceres-red);
+    border-bottom: 3px solid var(--caceres-gold);
+    padding-bottom: 10px;
+    margin-bottom: 20px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    font-size: 1.8rem;
+}
+
+#chat-container {
+    width: 95%;
+    max-width: 700px;
+    height: 80vh;
+    background-color: var(--caceres-white);
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    border: 1px solid #D1D1D1;
+}
+
+#mensajes {
+    flex: 1;
+    padding: 25px 20px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    scroll-behavior: smooth;
+}
+
+#mensajes::-webkit-scrollbar {
+    width: 8px;
+}
+#mensajes::-webkit-scrollbar-track {
+    background: transparent;
+}
+#mensajes::-webkit-scrollbar-thumb {
+    background-color: #cccccc;
+    border-radius: 10px;
+}
+#mensajes::-webkit-scrollbar-thumb:hover {
+    background-color: #aaaaaa;
+}
+
+.mensaje-usuario, .mensaje-ia {
+    padding: 12px 18px;
+    max-width: 85%;
+    font-size: 0.95rem;
+    line-height: 1.5;
+    word-wrap: break-word;
+    animation: slideUp 0.3s ease-out forwards;
+}
+
+.mensaje-usuario {
+    align-self: flex-end;
+    background-color: var(--caceres-red);
+    color: white;
+    border-radius: 18px 18px 2px 18px;
+    box-shadow: 0 2px 5px rgba(154, 16, 50, 0.2);
+}
+
+.mensaje-ia {
+    align-self: flex-start;
+    background-color: #FFFFFF;
+    color: var(--caceres-dark);
+    border-radius: 18px 18px 18px 2px;
+    border-left: 4px solid var(--caceres-gold);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.mensaje-ia strong {
+    color: var(--caceres-red);
+}
+.mensaje-ia a {
+    color: var(--caceres-red);
+    text-decoration: none;
+    font-weight: bold;
+    border-bottom: 1px dashed var(--caceres-red);
+}
+.mensaje-ia a:hover {
+    background-color: rgba(154, 16, 50, 0.05);
+}
+.mensaje-ia ul {
+    margin-top: 8px;
+    margin-left: 20px;
+}
+.mensaje-ia li {
+    margin-bottom: 6px;
+}
+
+#input-area {
+    padding: 15px 20px;
+    background: #FFFFFF;
+    display: flex;
+    gap: 12px;
+    border-top: 1px solid #EAEAEA;
+    align-items: center;
+}
+
+#usuario-input {
+    flex: 1;
+    padding: 12px 18px;
+    border: 1px solid #CCCCCC;
+    border-radius: 25px;
+    outline: none;
+    font-size: 1rem;
+    font-family: inherit;
+    background-color: #FFFFFF;
+    transition: all 0.3s ease;
+}
+
+#usuario-input:focus {
+    border-color: var(--caceres-red);
+    box-shadow: 0 0 0 3px rgba(154, 16, 50, 0.1);
+}
+
+#usuario-input::placeholder {
+    color: #999999;
+}
+
+button {
+    background-color: var(--caceres-red);
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 25px;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 1rem;
+    transition: all 0.2s ease;
+}
+
+button:hover {
+    background-color: #7a0c28;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(154, 16, 50, 0.3);
+}
+
+button:active {
+    transform: translateY(1px);
+    box-shadow: none;
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@media (max-width: 600px) {
+    #chat-container {
+        width: 100%;
+        height: 100vh;
+        border-radius: 0;
+        border: none;
+    }
+    h1 {
+        font-size: 1.4rem;
+        margin-top: 10px;
+    }
+    body {
+        padding: 0;
+    }
+}
+
+button:hover {
+    background-color: #7a0c28;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
