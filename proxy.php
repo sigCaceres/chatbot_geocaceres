@@ -14,6 +14,7 @@ $inputData = file_get_contents('php://input');
 // 2. Asignamos la ruta y cabeceras correspondientes según el servicio
 if ($service === 'ia') {
     $url = 'https://api.openai.com/v1/chat/completions';
+    // poner la clave de open ia
     $OPENAI_API_KEY = "clave"; 
     $headers = array(
         'Content-Type: application/json',
