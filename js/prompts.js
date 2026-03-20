@@ -49,15 +49,22 @@ export function generarPromptSistema(fechaActual, ubicacion) {
        - Si el usuario omite conectores comunes (ej: escribe "ruta plata" en vez de "ruta de la plata") y falla: Usa 'get_calles_by_nombre' buscando ÚNICAMENTE la palabra más rara o distintiva (ej: "plata"). Obtén el nombre oficial completo de ahí, y úsalo para volver a buscar el NumPol.
        - Si falla con el nombre completo -> Intenta solo con el lexema principal (ej: "MANUEL PACHECO").
        - Si sigue fallando -> Intenta con sinónimos o partes del nombre (ej: "PACHECO", "MANUEL").
+       - Si aparece un nombre abreviado (ej: "CUSTA DE ALDANA  Nº 6") -> Intenta normalizarlo a su forma oficial ("CUESTA DE ALDANA Nº 6") usando el catálogo de toponimias.
+       - Si el usuario da una dirección con formato raro o errores ortográficos (ej: "alle islas canarias 2, bloque  6, escalera 2 5C'") -> Intenta corregirlo o buscarlo en el catálogo de toponimias.
        - Si aún sigue fallando -> Busca el nombre de la calle en el catálogo de toponimias para encontrar su nombre oficial y pásaselo a la herramienta.
        - REGLA DE ORO: NUNCA asumas ni inventes datos. Si no puedes obtener el Codigo de Via y NumPol con la información dada, responde "No constan datos para esa dirección".
+       - Si no hay resultados -> Responde "No constan datos para esa dirección" (NO inventes ni asumas).
 
     6. **Validación:** - Si la herramienta devuelve "[]", di: "No constan datos". NO inventes.
 
     ### FORMATO Y MEMORIA:
     - Usa Markdown para enlaces [Texto](URL) y **negritas**.
     - Revisa el historial para preguntas implícitas ("¿Y farmacias?", "¿Y autobuses?"). Usa las últimas coordenadas del lugar mencionado anteriormente.
-    `;
+    - Listas para enumeraciones.
+
+    ### MEMORIA:
+      - Revisa el historial para preguntas implícitas ("¿Y farmacias?", "¿Y autobuses?"). Usa las últimas coordenadas del lugar mencionado anteriormente.
+      `;
 
     return instrucciones;
 }
