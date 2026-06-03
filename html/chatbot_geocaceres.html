@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -13,14 +13,26 @@
 
     <div id="chat-container">
 
+        <div id="header">
+			<img src="../IMG/Logo_GeoCaceres.png" id="logo" alt="GeoCáceres">
+
+			<div id="quick-actions">
+				<button class="quick-btn" data-query="¿Qué hay cerca de mí?">Cerca de mí</button>
+				<button class="quick-btn" data-query="Busca farmacias cerca de mí">Farmacias</button>
+				<button class="quick-btn" data-query="¿Qué autobuses puedo coger cerca de mí?">Autobuses</button>
+				<button class="quick-btn" data-query="Dime monumentos importantes de Cáceres">Monumentos</button>
+			</div>
+		</div>
+
         <div id="mensajes">
-            <div class="mensaje-ia"></div>
+			<!-- <div class="mensaje-ia"></div> -->
+			
         </div>
 
         <div id="input-area">
-            <input id="usuario-input" type="text" placeholder="Escribe tu mensaje..."/> 
-            <button id="enviar-btn">Enviar</button>
-        </div>
+			<input id="usuario-input" type="text" placeholder="Escribe tu mensaje..."/>
+			<button id="enviar-btn">Enviar</button>
+		</div>
 
     </div>
 
