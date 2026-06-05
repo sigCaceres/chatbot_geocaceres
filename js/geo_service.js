@@ -2,11 +2,6 @@
  * ============================================================================
  * ARCHIVO: geo_service.js
  * DESCRIPCIÓN: Servicio de Geolocalización.
- * RESPONSABILIDADES:
- * 1. Abstraer la API nativa del navegador (navigator.geolocation).
- * 2. Almacenar el estado de la ubicación actual (latitud/longitud).
- * 3. Proveer métodos para que otros módulos (como la IA) lean la ubicación.
- * 4. Realizar geocodificación inversa para obtener la dirección a partir de coordenadas.
  * ============================================================================
  */
 
@@ -16,7 +11,6 @@ let ubicacionUsuario = null;
 
 // Variable privada para guardar la ubicación enriquecida con datos de dirección.
 let ubicacionUsuarioDetallada = null;
-
 
 /**
  * Función "Getter" para acceder a la ubicación desde otros archivos.
@@ -76,6 +70,26 @@ function inferirTipoVia(data = {}) {
     }
 
     return "Calle";
+}
+
+/**
+ * Construye un texto legible para mostrar en la interfaz.
+ * Así evitamos pasar objetos directamente a la UI y terminar con "[object Object]".
+ * @param {Object|null} ubicacion
+ * @returns {string}
+ */
+function construirMensajeUbicacion(ubicacion) {
+    if (!ubicacion) return "Ubicación activada";
+
+    const partes = ["Ubicación activada"];
+
+    if (ubicacion.tipoVia && ubicacion.nombreVia) {
+        partes.push(`${ubicacion.tipoVia}: ${ubicacion.nombreVia}`);
+    } else if (ubicacion.nombreVia) {
+        partes.push(ubicacion.nombreVia);
+    }
+
+    return partes.join(" - ");
 }
 
 /**
@@ -161,10 +175,16 @@ export function iniciarGPS(callbackVisual) {
                 };
             }
 
-            if (callbackVisual) callbackVisual(ubicacionUsuarioDetallada);
+            if (callbackVisual) {
+                callbackVisual(construirMensajeUbicacion(ubicacionUsuarioDetallada));
+            }
         },
         (error) => {
             console.warn("Ubicación denegada o error:", error.message);
+
+            if (callbackVisual) {
+                callbackVisual("No se pudo activar la ubicación");
+            }
         }
     );
 }

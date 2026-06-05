@@ -30,7 +30,30 @@ function formatearContenidoBasico(texto) {
         .replace(
             /\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g,
             '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>'
-        )
+        );
+}
+
+function extraerTextoSeguro(valor) {
+    if (valor == null) return '';
+
+    if (typeof valor === 'string') return valor.trim();
+
+    if (typeof valor === 'object') {
+        if (typeof valor.texto === 'string') return valor.texto.trim();
+        if (typeof valor.mensaje === 'string') return valor.mensaje.trim();
+        if (typeof valor.message === 'string') return valor.message.trim();
+        if (typeof valor.respuesta === 'string') return valor.respuesta.trim();
+        if (typeof valor.content === 'string') return valor.content.trim();
+        if (typeof valor.msg === 'string') return valor.msg.trim();
+
+        try {
+            return JSON.stringify(valor);
+        } catch {
+            return '';
+        }
+    }
+
+    return String(valor).trim();
 }
 
 export function formatearTexto(texto) {
@@ -54,13 +77,27 @@ function crearBotonCopiar(textoBase) {
             setTimeout(() => {
                 copiarBtn.innerHTML = textoOriginal;
             }, 1500);
-
         } catch (err) {
             console.error('Error al intentar copiar el texto:', err);
         }
     });
 
     return copiarBtn;
+}
+
+function crearBotonCopiarMapa(titulo, textoIntro, url) {
+    const textoBase = construirTextoCopiableMapa(titulo, textoIntro, url);
+    return crearBotonCopiar(textoBase);
+}
+
+function crearEnlaceMapa(url) {
+    const enlace = document.createElement('a');
+    enlace.href = url;
+    enlace.target = '_blank';
+    enlace.rel = 'noopener noreferrer';
+    enlace.className = 'mapa-link';
+    enlace.textContent = '🗺️ Ver mapa en otra página';
+    return enlace;
 }
 
 export function agregarMensaje(texto, tipo = 'ai') {
@@ -120,9 +157,11 @@ export function mostrarPensando() {
 export function mostrarAvisoGPS(mensaje = 'Ubicación activada') {
     if (!divMensajes) return null;
 
+    const textoSeguro = extraerTextoSeguro(mensaje) || 'Ubicación activada';
+
     const aviso = document.createElement('div');
     aviso.className = 'mensaje-ia';
-    aviso.innerHTML = `<small>${escaparHTML(mensaje)}</small>`;
+    aviso.innerHTML = `<small>${escaparHTML(textoSeguro)}</small>`;
 
     divMensajes.appendChild(aviso);
     autoScroll();
@@ -177,6 +216,16 @@ function extraerUrlMapa(texto) {
     return match ? match[0] : null;
 }
 
+function construirTextoCopiableMapa(titulo, textoIntro, url) {
+    const partes = [];
+
+    if (titulo) partes.push(String(titulo).trim());
+    if (textoIntro) partes.push(String(textoIntro).trim());
+    if (url) partes.push(String(url).trim());
+
+    return partes.filter(Boolean).join('\n\n');
+}
+
 function intentarParsearJSON(texto) {
     const limpio = String(texto ?? '').trim();
     if (!limpio.startsWith('{') || !limpio.endsWith('}')) return null;
@@ -204,28 +253,28 @@ export function renderizarRespuestaIA(respuesta, contenedor = null) {
             destino.appendChild(textoDiv);
         }
 
-        const wrapper = document.createElement('div');
-        wrapper.style.marginTop = textoIntro ? '12px' : '0';
-		
-		
-        const label = document.createElement('div');
-        label.style.marginBottom = '8px';
-        label.style.fontWeight = '600';
-        label.style.color = '#9A1032';
-        label.textContent = titulo;
-		
+        const wrapperMapa = document.createElement('div');
+        wrapperMapa.className = 'respuesta-mapa';
 
-		const wrapperMapa = document.createElement('div');
-		wrapperMapa.className = 'respuesta-mapa';
+        const iframe = document.createElement('iframe');
+        iframe.src = String(url);
+        iframe.loading = 'lazy';
+        iframe.allowFullscreen = true;
+        iframe.setAttribute('referrerpolicy', 'no-referrer-when-downgrade');
 
-		const iframe = document.createElement('iframe');
-		iframe.src = String(url);
-		iframe.loading = 'lazy';
-		iframe.allowFullscreen = true;
-		iframe.setAttribute('referrerpolicy', 'no-referrer-when-downgrade');
+        wrapperMapa.appendChild(iframe);
+        destino.appendChild(wrapperMapa);
 
-		wrapperMapa.appendChild(iframe);
-		destino.appendChild(wrapperMapa);
+        const enlaceMapa = crearEnlaceMapa(url);
+        enlaceMapa.style.display = 'inline-block';
+        enlaceMapa.style.marginTop = '10px';
+        destino.appendChild(enlaceMapa);
+
+        const botonCopiarMapa = crearBotonCopiarMapa(titulo, textoIntro, url);
+        botonCopiarMapa.style.display = 'inline-block';
+        botonCopiarMapa.style.marginTop = '10px';
+        botonCopiarMapa.style.marginLeft = '10px';
+        destino.appendChild(botonCopiarMapa);
 
         autoScroll();
         return destino;
@@ -250,11 +299,11 @@ export function renderizarRespuestaIA(respuesta, contenedor = null) {
     }
 
     const textoDiv = document.createElement('div');
-	textoDiv.innerHTML = formatearContenidoBasico(texto);
+    textoDiv.innerHTML = formatearContenidoBasico(texto);
 
-	destino.innerHTML = '';
-	destino.appendChild(textoDiv);
-	destino.appendChild(crearBotonCopiar(texto));
+    destino.innerHTML = '';
+    destino.appendChild(textoDiv);
+    destino.appendChild(crearBotonCopiar(texto));
     autoScroll();
     return destino;
 }

@@ -11,6 +11,7 @@ import {
     agregarMensaje,
     mostrarPensando,
     mostrarAvisoGPS,
+    crearAvisoConsultando,
     renderizarRespuestaIA
 } from './ui_service.js';
 
@@ -27,6 +28,46 @@ function hacerScrollAbajo() {
     }
 }
 
+function depurarValor(valor, etiqueta = 'valor') {
+    console.group(`DEBUG ${etiqueta}`);
+    console.log('tipo:', typeof valor);
+    console.log('valor crudo:', valor);
+
+    if (valor && typeof valor === 'object') {
+        try {
+            console.log('JSON:', JSON.stringify(valor, null, 2));
+        } catch (e) {
+            console.log('No se pudo serializar a JSON:', e);
+        }
+    }
+
+    console.groupEnd();
+}
+
+function convertirATextoSeguro(valor) {
+    if (valor == null) return '';
+
+    if (typeof valor === 'string') return valor.trim();
+
+    if (typeof valor === 'object') {
+        if (typeof valor.texto === 'string') return valor.texto.trim();
+        if (typeof valor.mensaje === 'string') return valor.mensaje.trim();
+        if (typeof valor.message === 'string') return valor.message.trim();
+        if (typeof valor.respuesta === 'string') return valor.respuesta.trim();
+        if (typeof valor.content === 'string') return valor.content.trim();
+        if (typeof valor.msg === 'string') return valor.msg.trim();
+        if (typeof valor.url === 'string' && valor.tipo === 'mapa') return valor.url.trim();
+
+        try {
+            return JSON.stringify(valor);
+        } catch {
+            return '';
+        }
+    }
+
+    return String(valor).trim();
+}
+
 async function procesarChat(textoManual = null) {
     if (!inputUsuario || !btnEnviar) return;
     if (enviando) return;
@@ -39,6 +80,9 @@ async function procesarChat(textoManual = null) {
     inputUsuario.disabled = true;
 
     try {
+        depurarValor(textoManual, 'textoManual recibido');
+        depurarValor(texto, 'texto final a enviar');
+
         agregarMensaje(texto, 'user');
         inputUsuario.value = '';
         hacerScrollAbajo();
@@ -47,21 +91,21 @@ async function procesarChat(textoManual = null) {
         hacerScrollAbajo();
 
         const respuesta = await obtenerRespuestaIA(texto);
+        depurarValor(respuesta, 'respuesta devuelta por obtenerRespuestaIA');
+
+        const respuestaSegura = convertirATextoSeguro(respuesta);
+        depurarValor(respuestaSegura, 'respuesta convertida a texto seguro');
 
         if (divPensando) {
-            renderizarRespuestaIA(respuesta, divPensando);
+            renderizarRespuestaIA(respuestaSegura, divPensando);
         } else {
-            renderizarRespuestaIA(respuesta);
+            renderizarRespuestaIA(respuestaSegura);
         }
 
         hacerScrollAbajo();
     } catch (error) {
         console.error('Error al procesar el chat:', error);
-
-        agregarMensaje(
-            'Lo siento, ha ocurrido un error al procesar tu consulta.',
-            'ai'
-        );
+        agregarMensaje('Lo siento, ha ocurrido un error al procesar tu consulta.', 'ai');
     } finally {
         enviando = false;
         btnEnviar.disabled = false;
@@ -72,7 +116,20 @@ async function procesarChat(textoManual = null) {
 }
 
 function inicializar() {
-    iniciarGPS(mostrarAvisoGPS);
+    console.log('Inicializando chatbot...');
+
+    try {
+        iniciarGPS((mensajeGPS) => {
+            depurarValor(mensajeGPS, 'mensajeGPS recibido en iniciarGPS');
+
+            const textoSeguro = convertirATextoSeguro(mensajeGPS);
+            depurarValor(textoSeguro, 'mensajeGPS convertido a texto');
+
+            mostrarAvisoGPS(textoSeguro);
+        });
+    } catch (error) {
+        console.error('Error al iniciar GPS:', error);
+    }
 
     agregarMensaje(
         'Hola. Soy el asistente virtual del SIG de Cáceres. ¿En qué puedo ayudarte?',
@@ -95,6 +152,7 @@ function inicializar() {
     quickButtons.forEach((btn) => {
         btn.addEventListener('click', () => {
             const consulta = btn.dataset.query || '';
+            depurarValor(consulta, 'quick-btn dataset.query');
             procesarChat(consulta);
         });
     });
@@ -103,6 +161,7 @@ function inicializar() {
 window.addEventListener('DOMContentLoaded', async () => {
     try {
         await cargarHerramientas();
+        console.log('Herramientas cargadas correctamente');
     } catch (error) {
         console.error('Error al cargar herramientas:', error);
     }
